@@ -17,6 +17,8 @@ const float Kd = -5;
 
 // Global variables
 double middlePoint = 15;
+double middlePoint_Upper = 1;
+double middlePoint_Lower = 1;
 double intError = 0;
 const unsigned long pollingTime = 10;
 float pollingSecs = pollingTime/1000;
