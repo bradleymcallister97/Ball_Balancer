@@ -1,4 +1,7 @@
 import Serial
+import matplotlib.pyplot as plt
+import matplotlib.animation as animation
+import time
 
 ser = serial.Serial('COM9', 9600, timeout =1)
 
