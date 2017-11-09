@@ -2,27 +2,28 @@
 
 Servo servo;
 
-#define RUN_TEST
-// #define RUN_PID
+// #define RUN_TEST
+#define RUN_PID
 
 // Pin locations
-const int servoPin = 9;
+const int servoPin = 5;
 const int trigPin = 11;
 const int echoPin = 10;
 
 // SET 1
-//const float Kp = 5;
-//const float Ki = 3;
-//const float Kd = -3.3;
+const float Kp = 5;
+const float Ki = 3;
+const float Kd = -3.3;
+
 // SET 2
-//const float Kp = 4.9;
-//const float Ki = 2.9;
-//const float Kd = -2.15;
+// const float Kp = 4.9;
+// const float Ki = 2.9;
+// const float Kd = -2.15;
 
 // Constants for PID algorithm
-const float Kp = 6;
-const float Ki = 4.75;
-const float Kd = -3;
+// const float Kp = 6;
+// const float Ki = 4.75;
+// const float Kd = -3;
 
 // Global variables
 float setPoint = 15;
@@ -36,6 +37,13 @@ unsigned long last_read_time = 0;
 float last_distance_cm = 0;
 uint32_t dummyData = 0;
 
+// UART Variables
+uint32_t Error = 0;
+uint32_t Sensor = 0;
+uint32_t PWM = 0;
+bool End = 0;
+
+// Global Test Variables 
 int counter = 0;
 bool CountDown = false;
 
@@ -43,6 +51,15 @@ float calculate_ball_speed(void);
 int getBallLocation(void);
 int calculate(double input);
 uint32_t sound_travel_time(void);
+
+void setup(){
+    pinMode(trigPin, OUTPUT); // Sets the trigPin as an Output
+    pinMode(echoPin, INPUT); // Sets the echoPin as an Input
+    Serial.begin(9600);
+    servo.attach(servoPin);
+    lastTimeCalculated = millis();
+    End = 0;
+}
 
 void loop(){
 #ifdef RUN_TEST
@@ -53,40 +70,34 @@ void loop(){
 #endif
 
 #ifdef RUN_PID
-    long now = millis();
+    uint32_t now = millis();
     if (now - lastTimeCalculated >= pollingTime){
         int ballLocation = getBallLocation();
+        Sensor = ballLocation;
         int output = calculate(ballLocation);
+        PWM = output;
         lastTimeCalculated = now;
         servo.write(output);
-        Serial.println(ballLocation);
+        // Serial.println(ballLocation);
     }
+
+    if(lastTimeCalculated > 10000)
+        End = 1;
+    
+    Serial.print(Error);
+    Serial.print(",");
+    Serial.print(Sensor);
+    Serial.print(",");
+    Serial.print(PWM);
+    Serial.print(",");
+    Serial.print(lastTimeCalculated);
+    Serial.print(",");
+    Serial.print(End);
+    Serial.print(",");
+    Serial.println("E");
+
 #endif
-   
-}
 
-void inc_dec_counter(void)
-{
-    if(CountDown)
-        counter--;
-    else
-        counter++;
-}
-
-void check_counter_state(void)
-{
-    if(counter == 25)
-        CountDown = true;
-    else if(counter ==0)
-        CountDown = false;
-}
-
-void setup(){
-    pinMode(trigPin, OUTPUT); // Sets the trigPin as an Output
-    pinMode(echoPin, INPUT); // Sets the echoPin as an Input
-    Serial.begin(9600);
-    servo.attach(servoPin);
-    lastTimeCalculated = millis();
 }
 
 int getBallLocation(){
@@ -109,8 +120,9 @@ int getSonarValue(){
     return pulseIn(echoPin, HIGH);
 }
 
-int calculate(float input){
+int calculate(int input){
     float error = setPoint - input;
+    Error = error;
 //    Serial.println(error);
     intError += error * pollingSecs;
     float derError = (error - lastError);
@@ -144,4 +156,20 @@ uint32_t sound_travel_time()
         duration = 3000;
     }
     return duration;
+}
+
+void inc_dec_counter(void)
+{
+    if(CountDown)
+        counter--;
+    else
+        counter++;
+}
+
+void check_counter_state(void)
+{
+    if(counter == 25)
+        CountDown = true;
+    else if(counter ==0)
+        CountDown = false;
 }
