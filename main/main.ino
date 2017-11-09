@@ -42,12 +42,12 @@ bool CountDown = false;
 float calculate_ball_speed(void);
 int getBallLocation(void);
 int calculate(double input);
-long sound_travel_time(void);
+uint32_t sound_travel_time(void);
 
 void loop(){
 #ifdef RUN_TEST
     dummyData = sound_travel_time();
-    println(dummyData);
+    Serial.println(dummyData);
     delay(100);
 
 #endif
@@ -138,7 +138,7 @@ float calculate_ball_speed()
 uint32_t sound_travel_time()
 {
     uint32_t duration = getSonarValue();
-    last_read_time = now;
+    last_read_time = millis();
     if( duration == 0)
     {
         duration = 3000;
