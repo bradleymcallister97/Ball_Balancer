@@ -2,8 +2,8 @@
 
 Servo servo;
 
-//#define RUN_TEST
-#define RUN_PID
+#define RUN_TEST
+// #define RUN_PID
 
 // Pin locations
 const int servoPin = 9;
@@ -25,15 +25,16 @@ const float Ki = 4.75;
 const float Kd = -3;
 
 // Global variables
-double setPoint = 15;
-double intError = 0;
+float setPoint = 15;
+float intError = 0;
 const unsigned long pollingTime = 10;
 float pollingSecs = pollingTime/1000;
 unsigned long lastTimeCalculated = 0;
 uint32_t lastOutput = 0;
-double lastError = 0;
+float lastError = 0;
 unsigned long last_read_time = 0;
 float last_distance_cm = 0;
+uint32_t dummyData = 0;
 
 int counter = 0;
 bool CountDown = false;
@@ -45,7 +46,9 @@ long sound_travel_time(void);
 
 void loop(){
 #ifdef RUN_TEST
-
+    dummyData = sound_travel_time();
+    println(dummyData);
+    delay(100);
 
 #endif
 
@@ -106,13 +109,13 @@ int getSonarValue(){
     return pulseIn(echoPin, HIGH);
 }
 
-int calculate(double input){
-    double error = setPoint - input;
+int calculate(float input){
+    float error = setPoint - input;
 //    Serial.println(error);
     intError += error * pollingSecs;
-    double derError = (error - lastError);
+    float derError = (error - lastError);
 
-    double output = error * Kp + intError * Ki + derError * Kd;
+    float output = error * Kp + intError * Ki + derError * Kd;
     if (output > 33) output = 33;
     else if (output < 0) output = 0;
 
@@ -132,7 +135,7 @@ float calculate_ball_speed()
     return speed;
 }
 
-long sound_travel_time()
+uint32_t sound_travel_time()
 {
     uint32_t duration = getSonarValue();
     last_read_time = now;
