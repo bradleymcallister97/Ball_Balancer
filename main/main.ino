@@ -26,7 +26,7 @@ const float Kd = -3.3;
 // const float Kd = -3;
 
 // Global variables
-float setPoint = 15;
+float setPoint = 8;
 float intError = 0;
 const unsigned long pollingTime = 10;
 float pollingSecs = pollingTime/1000;
